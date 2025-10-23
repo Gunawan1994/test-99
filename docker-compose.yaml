@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  krakend:
+    image: devopsfaith/krakend:2.2.0
+    container_name: krakend
+    volumes:
+      - ./krakend/krakend.json:/etc/krakend/krakend.json:ro
+    ports:
+      - "8080:8080"
+    depends_on:
+      - user
+      - listing
+    networks:
+      - backend
+
+  # contoh service user
+  user:
+    build: ./user
+    container_name: user
+    environment:
+      - LISTEN_PORT=:8889
+      - MONGO_ADDR=mongo       # nama service MongoDB
+      - MONGO_PORT=27017
+      - MONGO_DATABASE=mydb
+      - MONGO_USER=root
+      - MONGO_PASSWORD=12345
+    ports:
+      - "8889:8889"
+    networks:
+      - backend
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:6.0
+    container_name: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+      MONGO_INITDB_DATABASE: mydb
+    ports:
+      - "27018:27017"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # contoh service listing
+  listing:
+    build: ./listing
+    container_name: listing
+    environment:
+      - LISTEN_PORT=:8888
+      - POSTGRES_ADDR=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=mydb
+      - POSTGRES_PASSWORD=12345
+    ports:
+      - "8888:8888"
+    networks:
+      - backend
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: mydb
+    ports:
+      - "5437:5432"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+networks:
+  backend:
+    driver: bridge

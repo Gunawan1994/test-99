@@ -2,7 +2,10 @@ version: '3.8'
 
 volumes:
   postgres_data:
-  mongo_data:
+
+networks:
+  backend:
+    driver: bridge
 
 services:
   postgres:
@@ -15,46 +18,26 @@ services:
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5437:5432" # host:container
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  mongo:
-    image: mongo:6.0
-    restart: unless-stopped
-    environment:
-      MONGO_USERNAME: root
-      MONGO_PASSWORD: 12345
-      MONGO_DATABASE: users
-    volumes:
-      - ./mongo_data:/data/db
-    ports:
-      - "27017:27017"
-    healthcheck:
-      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-
-  backend:
+  listing:
     build: .
     depends_on:
       postgres:
         condition: service_healthy
-      mongo:
-        condition: service_healthy
     restart: unless-stopped
     environment:
-      - LISTEN_PORT=:8080
+      - LISTEN_PORT=:8888
       - POSTGRES_ADDR=postgres
       - POSTGRES_PORT=5432
       - POSTGRES_DATABASE=mydb
       - POSTGRES_PASSWORD=12345
-      - MONGO_URI=mongodb://root:12345@mongo:27017/userdb?authSource=admin
-    volumes:
-      - ./.local:/local
     ports:
       - "8888:8888"
+    volumes:
+      - ./.local:/local

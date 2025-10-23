@@ -1,0 +1,100 @@
+{
+  "version": 3,
+  "name": "API Gateway",
+  "port": 8080,
+  "endpoints": [
+    {
+      "endpoint": "/users",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/users",
+          "host": ["http://user:8889"]
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    },
+    {
+      "endpoint": "/users/{id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/users/{id}",
+          "host": ["http://user:8889"]
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    },
+    {
+      "endpoint": "/users",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/users",
+          "host": ["http://user:8889"],
+          "method": "POST"
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    },
+
+    {
+      "endpoint": "/listings",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/listings",
+          "host": ["http://listing:8888"]
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    },
+        {
+      "endpoint": "/listings/{id}",
+      "method": "GET",
+      "backend": [
+        {
+          "url_pattern": "/listings/{id}",
+          "host": ["http://listing:8888"]
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    },
+    {
+      "endpoint": "/listings",
+      "method": "POST",
+      "backend": [
+        {
+          "url_pattern": "/listings",
+          "host": ["http://listing:8888"],
+          "method": "POST"
+        }
+      ],
+      "extra_config": {
+        "github.com/devopsfaith/krakend/proxy": {
+          "return_error_details": true
+        }
+      }
+    }
+  ]
+}
