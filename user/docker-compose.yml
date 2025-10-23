@@ -1,0 +1,44 @@
+version: '3.8'
+
+volumes:
+  mongo_data:
+
+networks:
+  backend:
+    driver: bridge
+
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: mydb
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 12345
+    volumes:
+      - ./mongo_data:/data/db
+    ports:
+      - "27018:27017" # host:container
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  user:
+    build: .
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      - LISTEN_PORT=:8889
+      - MONGO_USER=root
+      - MONGO_PASSWORD=12345
+      - MONGO_ADDR=mongo           # << pakai nama service, bukan localhost
+      - MONGO_PORT=27017          # port internal container
+      - MONGO_DATABASE=mydb
+    volumes:
+      - ./.local:/local
+    ports:
+      - "8889:8889"
