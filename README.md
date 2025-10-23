@@ -112,9 +112,3 @@ docker compose down
 ```bash
 docker compose logs -f
 ```
-
----
-
-## License
-
-MIT License
